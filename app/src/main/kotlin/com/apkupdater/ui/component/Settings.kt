@@ -1,6 +1,5 @@
 package com.apkupdater.ui.component
 
-import android.view.HapticFeedbackConstants
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -41,8 +40,9 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.Start
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalTextInputService
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -50,6 +50,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.apkupdater.R
+import com.apkupdater.ui.util.ClockTick
+import com.apkupdater.ui.util.VirtualKey
 
 
 @Composable
@@ -67,7 +69,7 @@ fun SliderSetting(
         .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp)
 ) {
     var position by remember { mutableFloatStateOf(getValue()) }
-    val view = LocalView.current
+    val haptic = LocalHapticFeedback.current
     Icon(painterResource(id = icon), text, Modifier.align(CenterVertically))
     Column(Modifier.padding(start = 8.dp).fillMaxWidth()) {
         Box(Modifier.fillMaxWidth()) {
@@ -79,7 +81,7 @@ fun SliderSetting(
             valueRange = valueRange,
             steps = steps,
             onValueChange = {
-                view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                haptic.performHapticFeedback(HapticFeedbackType.ClockTick)
                 position = it
                 setValue(it)
             },
@@ -98,7 +100,7 @@ fun SegmentedButtonSetting(
     @DrawableRes icon: Int = R.drawable.ic_system
 ) = Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp)) {
     var position by remember { mutableIntStateOf(getValue()) }
-    val view = LocalView.current
+    val haptic = LocalHapticFeedback.current
     Icon(painterResource(id = icon), text, Modifier.align(CenterVertically))
     Column(Modifier.padding(start = 8.dp).fillMaxWidth()) {
         Text(text, Modifier.align(Start).padding(start = 8.dp))
@@ -107,7 +109,7 @@ fun SegmentedButtonSetting(
                 SegmentedButton(
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
                     onClick = {
-                        view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                        haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
                         position = index
                         setValue(position)
                     },
@@ -159,7 +161,7 @@ fun DropDownSetting(
 ) = Box(Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 8.dp).fillMaxWidth()) {
     var expanded by remember { mutableStateOf(false) }
     var selectedOptionText by remember { mutableStateOf(options[getValue()]) }
-    val view = LocalView.current
+    val haptic = LocalHapticFeedback.current
 
     Row(Modifier.align(CenterStart)) {
         Icon(
@@ -192,7 +194,7 @@ fun DropDownSetting(
                 DropdownMenuItem(
                     text = { Text(text = option) },
                     onClick = {
-                        view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                        haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
                         selectedOptionText = option
                         expanded = false
                         setValue(i)
