@@ -16,6 +16,7 @@ import com.apkupdater.repository.GitLabRepository
 import com.apkupdater.repository.PlayRepository
 import com.apkupdater.repository.SearchRepository
 import com.apkupdater.repository.UpdatesRepository
+import com.apkupdater.repository.UptodownRepository
 import com.apkupdater.service.ApkMirrorService
 import com.apkupdater.service.ApkPureService
 import com.apkupdater.service.AptoideService
@@ -149,6 +150,8 @@ val mainModule = module {
 
 	single { GitLabRepository(get(), get()) }
 
+	single { UptodownRepository() }
+
 	single { ApkPureRepository(androidContext(), get(), get(), get()) }
 
 	single { AptoideRepository(get(), get(), get()) }
@@ -159,9 +162,9 @@ val mainModule = module {
 
 	single(named("izzy")) { FdroidRepository(androidContext(), get(), "https://apt.izzysoft.de/fdroid/repo/", IzzySource, get<Prefs>()) }
 
-	single { UpdatesRepository(get(), get(), get(), get(named("main")), get(named("izzy")), get(), get(), get(), get(), get()) }
+	single { UpdatesRepository(get(), get(), get(), get(named("main")), get(named("izzy")), get(), get(), get(), get(), get(), get()) }
 
-	single { SearchRepository(get(), get(named("main")), get(named("izzy")), get(), get(), get(), get(), get(), get()) }
+	single { SearchRepository(get(), get(named("main")), get(named("izzy")), get(), get(), get(), get(), get(), get(), get()) }
 
 	single { KryptoBuilder.nocrypt(androidContext(), androidContext().getString(R.string.app_name)) }
 

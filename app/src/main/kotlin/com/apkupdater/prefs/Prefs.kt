@@ -70,6 +70,7 @@ class Prefs(
 	val useIzzy = boolean("useIzzy", defValue = true, backed = true)
 	val useAptoide = boolean("useAptoide", defValue = true, backed = true)
 	val useApkPure = boolean("useApkPure", defValue = true, backed = true)
+	val useUptodown = boolean("useUptodown", defValue = false, backed = true)
 	val usePlay = boolean("usePlay", defValue = true, backed = true)
 	val enableAlarm = boolean("enableAlarm", defValue = false, backed = true)
 	val alarmHour = int("alarmHour", defValue = 12, backed = true)
