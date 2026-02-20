@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
+import androidx.compose.material3.tooltipAnchor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,7 +42,11 @@ fun ExcludeIcon(
     state = rememberTooltipState(),
     tooltip = { PlainTooltip { Text(stringResource(string)) } }
 ) {
-    Icon(painterResource(icon), stringResource(contentDescription))
+    Icon(
+        painterResource(icon),
+        stringResource(contentDescription),
+        modifier = Modifier.tooltipAnchor()
+    )
 }
 
 @Composable
@@ -126,6 +131,6 @@ fun RefreshIcon(
     Icon(
         painter = painterResource(id = R.drawable.ic_refresh),
         contentDescription = text,
-        modifier = modifier
+        modifier = modifier.tooltipAnchor()
     )
 }
