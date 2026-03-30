@@ -87,7 +87,9 @@ abstract class InstallViewModel(
             is Link.Play -> {
                 val files: List<PlayFile> = link.getInstallFiles()
                 installLog.emitProgress(AppInstallProgress(id, 0L, files.sumOf { it.size }))
-                installer.install(id, packageName, files.map { downloader.downloadStream(it.url)!! })
+                val streams = files.mapNotNull { downloader.downloadStream(it.url) }
+                require(streams.size == files.size) { "Failed to download one or more Play install files." }
+                installer.install(id, packageName, streams)
             }
             is Link.Url -> {
                 installLog.emitProgress(AppInstallProgress(id, 0L, link.size))
