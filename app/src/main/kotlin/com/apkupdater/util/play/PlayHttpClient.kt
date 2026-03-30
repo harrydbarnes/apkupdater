@@ -176,7 +176,7 @@ class PlayHttpClient(
         return PlayResponse(
             isSuccessful = response.isSuccessful,
             code = response.code,
-            responseBytes = response.body.bytes(),
+            responseBytes = response.body?.bytes() ?: ByteArray(0),
             errorString = if (!response.isSuccessful) response.message else ""
         ).also {
             _responseCode.value = response.code

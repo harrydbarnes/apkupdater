@@ -14,16 +14,16 @@
     <string name="exclude_app_store">Vyjmout Obchod s aplikacemi</string>
     <string name="include_app_store">Zahrnout Obchod s aplikacemi</string>
     <string name="exclude_disabled_apps">Vyjmout zakázané aplikace</string>
-    <string name="include_disabled_apps">Zahrnout zakázané aplikac</string>
+    <string name="include_disabled_apps">Zahrnout zakázané aplikace</string>
     <string name="install_cd">Instalovat</string>
-    <string name="install_all">Instaloat vše</string>
+    <string name="install_all">Instalovat vše</string>
     <string name="app_cd">Ikona aplikace</string>
     <string name="install_success">%1$s nainstalováno.</string>
     <string name="install_failure">%1$s se nepovedlo nainstalovat.</string>
     <string name="root_install_not_supported">Instalace této aplikace pomocí rootu není podporována.</string>
 
     // Settings
-    <string name="settings_experimental_installer">Použít exprerimentální nový instalátor</string>
+    <string name="settings_experimental_installer">Použít experimentální nový instalátor</string>
     <string name="settings_portrait_columns">Sloupce v portrétním režimu</string>
     <string name="settings_landscape_columns">Sloupce v režimu na šířku</string>
     <string name="play_text_animations">Animace textu Play</string>

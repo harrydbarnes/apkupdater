@@ -58,7 +58,7 @@ class UpdatesViewModel(
 	}
 
 	fun installAll() = viewModelScope.launchWithMutex(mutex, Dispatchers.IO) {
-		if(installer.checkPermission()) {
+		if (installer.checkPermission()) {
 			state.value.updates().forEach { update ->
 				if (state.value.updates().any { it.id == update.id && it.isInstalling }) return@forEach
 				state.value = UpdatesUiState.Success(state.value.mutableUpdates().setIsInstalling(update.id, true))

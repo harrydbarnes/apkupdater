@@ -174,7 +174,7 @@ class SessionInstaller(
         val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
         params.setAppPackageName(packageName)
 
-        if (Build.VERSION.SDK_INT > 24) {
+        if (Build.VERSION.SDK_INT >= 24) {
             params.setOriginatingUid(Process.myUid())
         }
 
