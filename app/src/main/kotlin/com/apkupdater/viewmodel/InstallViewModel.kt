@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.ui.platform.UriHandler
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aurora.gplayapi.data.models.PlayFile
 import com.apkupdater.R
 import com.apkupdater.data.snack.TextSnack
 import com.apkupdater.data.ui.ApkMirrorSource
@@ -84,7 +85,7 @@ abstract class InstallViewModel(
         when (link) {
             Link.Empty -> { Log.e("InstallViewModel", "downloadAndInstall: Unsupported.")}
             is Link.Play -> {
-                val files = link.getInstallFiles()
+                val files: List<PlayFile> = link.getInstallFiles()
                 installLog.emitProgress(AppInstallProgress(id, 0L, files.sumOf { it.size }))
                 installer.install(id, packageName, files.map { downloader.downloadStream(it.url)!! })
             }
