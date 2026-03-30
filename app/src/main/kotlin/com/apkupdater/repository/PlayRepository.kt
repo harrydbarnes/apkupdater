@@ -1,8 +1,8 @@
 package com.apkupdater.repository
 
 import android.content.Context
-import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import com.apkupdater.data.ui.AppInstalled
 import com.apkupdater.data.ui.AppUpdate
 import com.apkupdater.data.ui.Link
@@ -17,7 +17,7 @@ import com.apkupdater.util.play.NativeDeviceInfoProvider
 import com.apkupdater.util.play.PlayHttpClient
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.File
+import com.aurora.gplayapi.data.models.PlayFile
 import com.aurora.gplayapi.helpers.AppDetailsHelper
 import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.aurora.gplayapi.helpers.SearchHelper
@@ -84,7 +84,7 @@ class PlayRepository(
             val updates = SearchHelper(authData)
                 .using(playHttpClient)
                 .searchResults(text)
-                .appList
+                .streamClusters.values.flatMap { it.clusterAppList }
                 .take(10)
                 .map { it.toAppUpdate(::getInstallFiles) }
             emit(Result.success(updates))
@@ -125,12 +125,12 @@ class PlayRepository(
     private fun getInstallFiles(app: App) = PurchaseHelper(auth())
         .using(playHttpClient)
         .purchase(app.packageName, app.versionCode, app.offerType)
-        .filter { it.type == File.FileType.BASE || it.type == File.FileType.SPLIT }
+        .filter { it.type == PlayFile.Type.BASE || it.type == PlayFile.Type.SPLIT }
 
 }
 
 fun App.toAppUpdate(
-    getInstallFiles: (App) -> List<File>,
+    getInstallFiles: (App) -> List<PlayFile>,
     oldVersion: String = "",
     oldVersionCode: Long = 0L
 ) = AppUpdate(
@@ -138,10 +138,10 @@ fun App.toAppUpdate(
     packageName,
     versionName,
     oldVersion,
-    versionCode.toLong(),
+    versionCode,
     oldVersionCode,
     PlaySource,
-    Uri.parse(iconArtwork.url),
+    iconArtwork.url.toUri(),
     Link.Play { getInstallFiles(this) },
     whatsNew = changes
 )

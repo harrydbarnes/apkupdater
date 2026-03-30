@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.ui.platform.UriHandler
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aurora.gplayapi.data.models.PlayFile
 import com.apkupdater.R
 import com.apkupdater.data.snack.TextSnack
 import com.apkupdater.data.ui.ApkMirrorSource
@@ -17,6 +18,7 @@ import com.apkupdater.util.InstallLog
 import com.apkupdater.util.SessionInstaller
 import com.apkupdater.util.SnackBar
 import com.apkupdater.util.Stringer
+import java.io.InputStream
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -44,8 +46,8 @@ abstract class InstallViewModel(
         }
     }
 
-    protected fun subscribeToInstallStatus(updates: List<AppUpdate>) = installLog.status().onEach {
-        sendInstallSnack(updates, it)
+    protected fun subscribeToInstallStatus() = installLog.status().onEach {
+        sendInstallSnack(it)
         if (it.success) {
             finishInstall(it.id).join()
         } else {
@@ -80,12 +82,24 @@ abstract class InstallViewModel(
     }
 
     protected suspend fun downloadAndInstall(id: Int, packageName: String, link: Link) = runCatching {
+        installLog.emitProgress(AppInstallProgress(id, 0L))
         when (link) {
             Link.Empty -> { Log.e("InstallViewModel", "downloadAndInstall: Unsupported.")}
             is Link.Play -> {
-                val files = link.getInstallFiles()
+                val files: List<PlayFile> = link.getInstallFiles()
                 installLog.emitProgress(AppInstallProgress(id, 0L, files.sumOf { it.size }))
-                installer.playInstall(id, packageName, files.map { downloader.downloadStream(it.url)!! })
+                val streams = mutableListOf<InputStream>()
+                files.forEach { file ->
+                    val stream = downloader.downloadStream(file.url)
+                    if (stream == null) {
+                        closeStreams(streams)
+                        throw IllegalStateException(
+                            "Failed to download Play install file (network/source issue): ${file.name.ifBlank { file.url }}"
+                        )
+                    }
+                    streams.add(stream)
+                }
+                installer.install(id, packageName, streams)
             }
             is Link.Url -> {
                 installLog.emitProgress(AppInstallProgress(id, 0L, link.size))
@@ -98,15 +112,15 @@ abstract class InstallViewModel(
         cancelInstall(id)
     }
 
-    private fun sendInstallSnack(updates: List<AppUpdate>, log: AppInstallStatus) {
-        if (log.snack) {
-            updates.find { log.id == it.id }?.let { app ->
-                val message = if (log.success) R.string.install_success else R.string.install_failure
-                snackBar.snackBar(viewModelScope, TextSnack(stringer.get(message, app.name)))
+    private fun closeStreams(streams: List<InputStream>) {
+        streams.forEach {
+            runCatching { it.close() }.onFailure { closeError ->
+                Log.w("InstallViewModel", "Error closing partial Play stream.", closeError)
             }
         }
     }
 
+    protected abstract fun sendInstallSnack(log: AppInstallStatus)
     protected abstract fun downloadAndInstall(update: AppUpdate): Job
     protected abstract fun downloadAndRootInstall(update: AppUpdate): Job
     protected abstract fun cancelInstall(id: Int): Job

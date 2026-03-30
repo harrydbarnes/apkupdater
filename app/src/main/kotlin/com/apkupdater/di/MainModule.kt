@@ -47,7 +47,7 @@ import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -181,7 +181,7 @@ val mainModule = module {
 
 	single { Clipboard(androidContext()) }
 
-	single { SessionInstaller(get(), get()) }
+	single { SessionInstaller(get(), get(), get()) }
 
 	single { SnackBar() }
 

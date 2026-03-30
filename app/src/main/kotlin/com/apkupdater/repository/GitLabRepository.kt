@@ -2,6 +2,7 @@ package com.apkupdater.repository
 
 import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import com.apkupdater.data.gitlab.GitLabApps
 import com.apkupdater.data.gitlab.GitLabRelease
 import com.apkupdater.data.ui.AppInstalled
@@ -63,7 +64,7 @@ class GitLabRepository(
                 source = GitLabSource,
                 link = Link.Url(getApkUrl(packageName, releases[0])),
                 whatsNew = releases[0].description,
-                iconUri = if (apps == null) Uri.parse(releases[0].author.avatar_url) else Uri.EMPTY
+                iconUri = if (apps == null) releases[0].author.avatar_url.toUri() else Uri.EMPTY
             )))
         } else {
             emit(emptyList())
