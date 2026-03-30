@@ -15,8 +15,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
 import com.apkupdater.R
 import com.apkupdater.util.getAppIcon
 
@@ -41,10 +41,9 @@ private fun BaseLoadingImage(
 fun LoadingImage(
     uri: Uri,
     modifier: Modifier = Modifier.height(120.dp).fillMaxSize(),
-    crossfade: Boolean = true,
     color: Color = Color.Transparent
 ) = BaseLoadingImage(
-    ImageRequest.Builder(LocalContext.current).data(uri).crossfade(crossfade).build(),
+    ImageRequest.Builder(LocalContext.current).data(uri).build(),
     modifier,
     color
 )
@@ -53,10 +52,9 @@ fun LoadingImage(
 fun LoadingImageApp(
     packageName: String,
     modifier: Modifier = Modifier.height(120.dp).fillMaxSize(),
-    crossfade: Boolean = false,
     color: Color = Color.Transparent
 ) = BaseLoadingImage(
-    ImageRequest.Builder(LocalContext.current).data(LocalContext.current.getAppIcon(packageName)).crossfade(crossfade).build(),
+    ImageRequest.Builder(LocalContext.current).data(LocalContext.current.getAppIcon(packageName)).build(),
     modifier,
     color
 )

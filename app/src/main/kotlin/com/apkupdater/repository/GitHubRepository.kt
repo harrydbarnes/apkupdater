@@ -2,6 +2,7 @@ package com.apkupdater.repository
 
 import android.net.Uri
 import android.os.Build
+import androidx.core.net.toUri
 import android.util.Log
 import com.apkupdater.BuildConfig
 import com.apkupdater.data.github.GitHubApps
@@ -123,7 +124,7 @@ class GitHubRepository(
                 source = GitHubSource,
                 link = findApkAssetArch(releases[0].assets, extra).let { Link.Url(it.browser_download_url, it.size) },
                 whatsNew = releases[0].body,
-                iconUri = if (apps == null) Uri.parse(releases[0].author.avatar_url) else Uri.EMPTY
+                iconUri = if (apps == null) releases[0].author.avatar_url.toUri() else Uri.EMPTY
             )))
         } else {
             emit(emptyList())

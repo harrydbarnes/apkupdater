@@ -1,6 +1,10 @@
 package com.apkupdater.viewmodel
 
+import android.content.pm.PackageInstaller
 import androidx.lifecycle.viewModelScope
+import com.apkupdater.R
+import com.apkupdater.data.snack.TextSnack
+import com.apkupdater.data.ui.AppInstallStatus
 import com.apkupdater.data.ui.AppUpdate
 import com.apkupdater.data.ui.UpdatesUiState
 import com.apkupdater.data.ui.removeId
@@ -28,8 +32,8 @@ class UpdatesViewModel(
 	private val prefs: Prefs,
 	private val badger: Badger,
 	downloader: Downloader,
-	snackBar: SnackBar,
-	stringer: Stringer,
+	private val snackBar: SnackBar,
+	private val stringer: Stringer,
 	installLog: InstallLog
 ) : InstallViewModel(downloader, installer, prefs, snackBar, stringer, installLog) {
 
@@ -37,7 +41,7 @@ class UpdatesViewModel(
 	private val state = MutableStateFlow<UpdatesUiState>(UpdatesUiState.Loading)
 
 	init {
-		subscribeToInstallStatus(state.value.updates())
+		subscribeToInstallStatus()
 		subscribeToInstallProgress { progress ->
 			state.value = UpdatesUiState.Success(state.value.mutableUpdates().setProgress(progress))
 		}
@@ -50,6 +54,18 @@ class UpdatesViewModel(
 		badger.changeUpdatesBadge("")
 		updatesRepository.updates().collect {
 			setSuccess(it)
+		}
+	}
+
+	fun installAll() = viewModelScope.launchWithMutex(mutex, Dispatchers.IO) {
+		if(installer.checkPermission()) {
+			state.value.updates().forEach { update ->
+				if (state.value.updates().any { it.id == update.id && it.isInstalling }) return@forEach
+				state.value = UpdatesUiState.Success(state.value.mutableUpdates().setIsInstalling(update.id, true))
+				viewModelScope.launch(Dispatchers.IO) {
+					downloadAndInstall(update.id, update.packageName, update.link)
+				}
+			}
 		}
 	}
 
@@ -79,6 +95,15 @@ class UpdatesViewModel(
 		if(installer.checkPermission()) {
 			state.value = UpdatesUiState.Success(state.value.mutableUpdates().setIsInstalling(update.id, true))
 			downloadAndInstall(update.id, update.packageName, update.link)
+		}
+	}
+
+	override fun sendInstallSnack(log: AppInstallStatus) {
+		if (log.snack) {
+			state.value.updates().find { log.id == it.id }?.let { app ->
+				val message = if (log.success) R.string.install_success else R.string.install_failure
+				snackBar.snackBar(viewModelScope, TextSnack(stringer.get(message, app.name)))
+			}
 		}
 	}
 

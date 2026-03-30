@@ -44,8 +44,8 @@ abstract class InstallViewModel(
         }
     }
 
-    protected fun subscribeToInstallStatus(updates: List<AppUpdate>) = installLog.status().onEach {
-        sendInstallSnack(updates, it)
+    protected fun subscribeToInstallStatus() = installLog.status().onEach {
+        sendInstallSnack(it)
         if (it.success) {
             finishInstall(it.id).join()
         } else {
@@ -80,12 +80,13 @@ abstract class InstallViewModel(
     }
 
     protected suspend fun downloadAndInstall(id: Int, packageName: String, link: Link) = runCatching {
+        installLog.emitProgress(AppInstallProgress(id, 0L))
         when (link) {
             Link.Empty -> { Log.e("InstallViewModel", "downloadAndInstall: Unsupported.")}
             is Link.Play -> {
                 val files = link.getInstallFiles()
                 installLog.emitProgress(AppInstallProgress(id, 0L, files.sumOf { it.size }))
-                installer.playInstall(id, packageName, files.map { downloader.downloadStream(it.url)!! })
+                installer.install(id, packageName, files.map { downloader.downloadStream(it.url)!! })
             }
             is Link.Url -> {
                 installLog.emitProgress(AppInstallProgress(id, 0L, link.size))
@@ -98,15 +99,7 @@ abstract class InstallViewModel(
         cancelInstall(id)
     }
 
-    private fun sendInstallSnack(updates: List<AppUpdate>, log: AppInstallStatus) {
-        if (log.snack) {
-            updates.find { log.id == it.id }?.let { app ->
-                val message = if (log.success) R.string.install_success else R.string.install_failure
-                snackBar.snackBar(viewModelScope, TextSnack(stringer.get(message, app.name)))
-            }
-        }
-    }
-
+    protected abstract fun sendInstallSnack(log: AppInstallStatus)
     protected abstract fun downloadAndInstall(update: AppUpdate): Job
     protected abstract fun downloadAndRootInstall(update: AppUpdate): Job
     protected abstract fun cancelInstall(id: Int): Job

@@ -21,6 +21,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -38,7 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.apkupdater.BuildConfig
 import com.apkupdater.R
 import com.apkupdater.data.ui.GitHubSource
@@ -56,7 +57,7 @@ import com.apkupdater.ui.component.SwitchSetting
 import com.apkupdater.ui.theme.statusBarColor
 import com.apkupdater.util.isAndroidTv
 import com.apkupdater.viewmodel.SettingsViewModel
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import java.util.Calendar
 
 
@@ -289,6 +290,12 @@ fun Settings(viewModel: SettingsViewModel) = LazyColumn {
 			stringResource(R.string.use_safe_stores),
 			R.drawable.ic_safe
 		)
+		SwitchSetting(
+			{ viewModel.getNewInstaller() },
+			{ viewModel.setNewInstaller(it) },
+			stringResource(R.string.settings_experimental_installer),
+			R.drawable.ic_root
+		)
 	}
 
 	item {
@@ -352,6 +359,7 @@ fun Settings(viewModel: SettingsViewModel) = LazyColumn {
 fun SettingsTopBar(viewModel: SettingsViewModel) = TopAppBar(
 	title = { Text(stringResource(R.string.tab_settings)) },
 	colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.statusBarColor()),
+	windowInsets = WindowInsets(0),
 	actions = {
 		IconButton(onClick = { viewModel.setAbout() }) {
 			Icon(painterResource(R.drawable.ic_info), stringResource(R.string.about))
@@ -369,6 +377,7 @@ fun SettingsTopBar(viewModel: SettingsViewModel) = TopAppBar(
 fun AboutTopBar(viewModel: SettingsViewModel) = TopAppBar(
 	title = { Text(stringResource(R.string.about)) },
 	colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.statusBarColor()),
+	windowInsets = WindowInsets(0),
 	actions = {
 		IconButton(onClick = { viewModel.setSettings() }) {
 			Icon(Icons.Default.Settings, stringResource(R.string.tab_settings))

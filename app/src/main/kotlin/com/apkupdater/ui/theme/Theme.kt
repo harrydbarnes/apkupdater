@@ -13,7 +13,6 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
@@ -40,22 +39,9 @@ fun AppTheme(
 	if (!view.isInEditMode) {
 		SideEffect {
 			val activity = view.context as Activity
-
-			// Set Navigation Bar color
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-				activity.window.navigationBarColor = colorScheme.statusBarColor().toArgb()
-				WindowCompat.getInsetsController(
-					activity.window,
-					view
-				).isAppearanceLightNavigationBars = !darkTheme
-			}
-
-			// Set Status Bar color
-			activity.window.statusBarColor = colorScheme.statusBarColor().toArgb()
-			WindowCompat.getInsetsController(
-				activity.window,
-				view
-			).isAppearanceLightStatusBars = !darkTheme
+			val insetsController = WindowCompat.getInsetsController(activity.window, view)
+			insetsController.isAppearanceLightStatusBars = !darkTheme
+			insetsController.isAppearanceLightNavigationBars = !darkTheme
 		}
 	}
 

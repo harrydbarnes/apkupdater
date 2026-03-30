@@ -33,6 +33,8 @@ class SettingsViewModel(
 
 	val state = MutableStateFlow<SettingsUiState>(SettingsUiState.Settings)
 
+	fun getNewInstaller() = prefs.newInstaller.get()
+	fun setNewInstaller(b: Boolean) = prefs.newInstaller.put(b)
 	fun setPortraitColumns(n: Int) = prefs.portraitColumns.put(n)
 	fun getPortraitColumns() = prefs.portraitColumns.get()
 	fun setLandscapeColumns(n: Int) = prefs.landscapeColumns.put(n)

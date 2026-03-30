@@ -18,7 +18,7 @@ class Downloader(
         val file = File(dir, randomUUID())
         client.newCall(downloadRequest(url)).execute().use {
             if (it.isSuccessful) {
-                it.body?.byteStream()?.copyTo(file.outputStream())
+                it.body.byteStream().copyTo(file.outputStream())
             }
         }
         return file
@@ -32,9 +32,7 @@ class Downloader(
         }
         val response = c.newCall(downloadRequest(url)).execute()
         if (response.isSuccessful) {
-            response.body?.let {
-                return it.byteStream()
-            }
+            return response.body.byteStream()
         } else {
             response.close()
             Log.e("Downloader", "Download failed with error code: ${response.code}")

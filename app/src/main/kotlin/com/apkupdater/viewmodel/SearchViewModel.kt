@@ -1,6 +1,9 @@
 package com.apkupdater.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.apkupdater.R
+import com.apkupdater.data.snack.TextSnack
+import com.apkupdater.data.ui.AppInstallStatus
 import com.apkupdater.data.ui.AppUpdate
 import com.apkupdater.data.ui.SearchUiState
 import com.apkupdater.data.ui.removeId
@@ -29,8 +32,8 @@ class SearchViewModel(
     private val badger: Badger,
     downloader: Downloader,
     prefs: Prefs,
-    snackBar: SnackBar,
-    stringer: Stringer,
+    private val snackBar: SnackBar,
+    private val stringer: Stringer,
     installLog: InstallLog
 ) : InstallViewModel(downloader, installer, prefs, snackBar, stringer, installLog) {
 
@@ -39,7 +42,7 @@ class SearchViewModel(
     private var job: Job? = null
 
     init {
-        subscribeToInstallStatus(state.value.updates())
+        subscribeToInstallStatus()
         subscribeToInstallProgress { progress ->
             state.value = SearchUiState.Success(state.value.mutableUpdates().setProgress(progress))
         }
@@ -87,6 +90,15 @@ class SearchViewModel(
         if(installer.checkPermission()) {
             state.value = SearchUiState.Success(state.value.mutableUpdates().setIsInstalling(update.id, true))
             downloadAndInstall(update.id, update.packageName, update.link)
+        }
+    }
+
+    override fun sendInstallSnack(log: AppInstallStatus) {
+        if (log.snack) {
+            state.value.updates().find { log.id == it.id }?.let { app ->
+                val message = if (log.success) R.string.install_success else R.string.install_failure
+                snackBar.snackBar(viewModelScope, TextSnack(stringer.get(message, app.name)))
+            }
         }
     }
 
