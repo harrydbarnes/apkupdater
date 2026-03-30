@@ -89,15 +89,15 @@ abstract class InstallViewModel(
                 val files: List<PlayFile> = link.getInstallFiles()
                 installLog.emitProgress(AppInstallProgress(id, 0L, files.sumOf { it.size }))
                 val streams = mutableListOf<InputStream>()
-                val failedFiles = mutableListOf<String>()
                 files.forEach { file ->
-                    downloader.downloadStream(file.url)?.let { streams.add(it) }
-                        ?: failedFiles.add(file.name.ifBlank { file.url })
-                }
-                require(failedFiles.isEmpty()) {
-                    "Failed to download ${failedFiles.size} of ${files.size} Play install files: ${
-                        failedFiles.joinToString(separator = ", ", limit = 3)
-                    }"
+                    val stream = downloader.downloadStream(file.url)
+                    if (stream == null) {
+                        streams.forEach { runCatching { it.close() } }
+                        throw IllegalStateException(
+                            "Failed to download Play install file: ${file.name.ifBlank { file.url }}"
+                        )
+                    }
+                    streams.add(stream)
                 }
                 installer.install(id, packageName, streams)
             }
