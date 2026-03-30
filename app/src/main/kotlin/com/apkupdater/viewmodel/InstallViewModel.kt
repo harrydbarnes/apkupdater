@@ -92,9 +92,13 @@ abstract class InstallViewModel(
                 files.forEach { file ->
                     val stream = downloader.downloadStream(file.url)
                     if (stream == null) {
-                        streams.forEach { runCatching { it.close() } }
+                        streams.forEach {
+                            runCatching { it.close() }.onFailure { closeError ->
+                                Log.w("InstallViewModel", "Error closing partial Play stream.", closeError)
+                            }
+                        }
                         throw IllegalStateException(
-                            "Failed to download Play install file: ${file.name.ifBlank { file.url }}"
+                            "Failed to download Play install file (network/source issue): ${file.name.ifBlank { file.url }}"
                         )
                     }
                     streams.add(stream)
