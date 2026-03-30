@@ -18,6 +18,7 @@ import com.apkupdater.util.InstallLog
 import com.apkupdater.util.SessionInstaller
 import com.apkupdater.util.SnackBar
 import com.apkupdater.util.Stringer
+import java.io.InputStream
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -87,7 +88,7 @@ abstract class InstallViewModel(
             is Link.Play -> {
                 val files: List<PlayFile> = link.getInstallFiles()
                 installLog.emitProgress(AppInstallProgress(id, 0L, files.sumOf { it.size }))
-                val streams = mutableListOf<java.io.InputStream>()
+                val streams = mutableListOf<InputStream>()
                 val failedFiles = mutableListOf<String>()
                 files.forEach { file ->
                     downloader.downloadStream(file.url)?.let { streams.add(it) }
@@ -95,7 +96,7 @@ abstract class InstallViewModel(
                 }
                 require(failedFiles.isEmpty()) {
                     "Failed to download ${failedFiles.size} of ${files.size} Play install files: ${
-                        failedFiles.joinToString(limit = 3)
+                        failedFiles.joinToString(separator = ", ", limit = 3)
                     }"
                 }
                 installer.install(id, packageName, streams)
